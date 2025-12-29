@@ -29,6 +29,7 @@ server.get('/', (req, res) => {
     res.send('Ok!');
 });
 
+// get funcionando
 server.get('/api/characters', async (req, res) =>{
     const connection = await getConnection();
     const [rows] = await connection.query(
@@ -37,14 +38,56 @@ server.get('/api/characters', async (req, res) =>{
     res.json(rows);
 });
 
-server.post('/api/characters', async (req, res) =>{
+
+// post funcionando
+server.post('/api/characters', async (req, res) => {
+  try {
     const connection = await getConnection();
-    const [rows] = await connection.query(
-      `SELECT * FROM characters`
-    );
-    res.json(rows);
+
+    const {
+      name,
+      age,
+      description,
+      background,
+      skills,
+      relationship,
+      occupation_id
+    } = req.body;
+
+    const sql = `
+      INSERT INTO characters
+      (name, age, description, background, skills, relationship, occupation_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      name,
+      age,
+      description,
+      background,
+      skills,
+      relationship,
+      occupation_id
+    ];
+
+    const [result] = await connection.query(sql, values);
+
+    res.json({
+      success: true,
+      id: result.insertId
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
+
+//cambiar
 server.put('/api/characters/:id', async (req, res) =>{
     const connection = await getConnection();
     const [rows] = await connection.query(
@@ -53,6 +96,8 @@ server.put('/api/characters/:id', async (req, res) =>{
     res.json(rows);
 });
 
+
+//cambiar
 server.delete('/api/characters/:id', async (req, res) =>{
     const connection = await getConnection();
     const [rows] = await connection.query(
