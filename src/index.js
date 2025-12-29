@@ -38,7 +38,6 @@ server.get("/api/characters", async (req, res) => {
   res.json(rows);
 });
 
-
 // post funcionando
 server.post("/api/characters", async (req, res) => {
   try {
@@ -85,7 +84,6 @@ server.post("/api/characters", async (req, res) => {
   }
 });
 
-
 // put funcionando
 server.put("/api/characters/:id", async (req, res) => {
   const connection = await getConnection();
@@ -117,14 +115,26 @@ server.put("/api/characters/:id", async (req, res) => {
     ]
   );
   res.json({
-    success: true
+    success: true,
   });
 });
-
 
 //cambiar
 server.delete("/api/characters/:id", async (req, res) => {
   const connection = await getConnection();
-  const [rows] = await connection.query(`SELECT * FROM characters`);
-  res.json(rows);
+  const { id } = req.params;
+
+  const [result] = await connection.query(
+    "DELETE FROM characters WHERE id = ?",
+    [id]
+  );
+
+  if (result.affectedRows === 0) {
+    res.status(404).json({
+      success: false,
+      message: "Character not found",
+    });
+  } else {
+    res.json({ success: true });
+  }
 });
